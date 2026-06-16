@@ -1,0 +1,16 @@
+# Caso 3 antenas en linea recta  n=3  k=1  b=2  D=100.0
+# Coordenadas: A1=(0 ,0)  A2=(90, 0)  A3=(180, 0)
+# Tiene solucion:
+# Antena 1: backup = [2]
+# Antena 2: backup = [1]
+# Antena 3: backup = [2]
+
+D = 100.0
+k = 1
+b = 2
+
+distancias = [
+    [0, 90, 190],
+    [90, 0, 90],
+    [190, 90, 0],
+]
