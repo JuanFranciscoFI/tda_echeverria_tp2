@@ -57,7 +57,7 @@ def generar_toml(n: int, k: int, b: int, D: float, seed: int | None = None) -> s
             f"# Probablemente no tenga solución. Aumentá D o reducí k.\n"
         )
 
-    filas_toml = "\n".join(_formatear_fila(fila) for fila in distancias)
+    filas_toml = ",\n".join(_formatear_fila(fila) for fila in distancias)
     coordenadas_comentario = "  ".join(f"A{i+1}=({x:.1f},{y:.1f})" for i, (x, y) in enumerate(coords))
 
     return (

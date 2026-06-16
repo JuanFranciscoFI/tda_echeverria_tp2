@@ -1,0 +1,14 @@
+-----------------------------------------------------------------------------------
+Caso                         Parametros           Resultado         Tiempo (ms)
+-----------------------------------------------------------------------------------
+caso1                        n=5 k=2 b=3 D=7      Solucion                 0.09
+caso_b_igual_k               n=6 k=2 b=2 D=40.0   Sin solucion             0.08
+caso_b_menor_k               n=8 k=3 b=2 D=40.0   Sin solucion             0.16
+caso_d_chico                 n=10 k=3 b=4 D=12.0  Sin solucion             0.09
+caso_d_amplio                n=10 k=3 b=4 D=45.0  Sin solucion             0.35
+caso_ajustado                n=15 k=2 b=3 D=35.0  Sin solucion             0.57
+caso_matching_perfecto       n=20 k=1 b=1 D=30.0  Sin solucion             0.64
+caso_mediano                 n=30 k=4 b=5 D=50.0  Solucion                 6.64
+caso_grande                  n=50 k=3 b=4 D=30.0  Solucion                19.31
+caso_grande_imposible        n=50 k=3 b=4 D=15.0  Sin solucion            18.08
+-----------------------------------------------------------------------------------
