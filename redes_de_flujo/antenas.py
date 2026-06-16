@@ -21,15 +21,28 @@ try:
 except ModuleNotFoundError:
     import tomli as tomllib  # pip install tomli  (Python < 3.11)
 
+import logging
 import sys
 from pathlib import Path
 
 from algoritmos import _edmonds_karp
 
+logger = logging.getLogger("antenas")
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Construcción de la red de flujo
 # ─────────────────────────────────────────────────────────────────────────────
+
+def _node_label(v, n, S, T):
+    if v == S:
+        return "S"
+    if v == T:
+        return "T"
+    if 1 <= v <= n:
+        return f"A{v}"
+    return f"B{v - n}"
+
 
 def _construir_red(distancias, k, b, D):
     """
@@ -48,16 +61,23 @@ def _construir_red(distancias, k, b, D):
 
     cap = [[0] * total for _ in range(total)]
 
+    logger.debug("--- Construcción de la red de flujo ---")
     for i in range(1, n + 1):
         cap[S][i] = k
+        logger.debug("  S -> A%d  cap=%d", i, k)
 
     for i in range(1, n + 1):
         for j in range(1, n + 1):
             if i != j and distancias[i - 1][j - 1] < D:
                 cap[i][n + j] = 1
+                logger.debug(
+                    "  A%d -> B%d  cap=1  (d=%.4g < D=%.4g)",
+                    i, j, distancias[i - 1][j - 1], D,
+                )
 
     for j in range(1, n + 1):
         cap[n + j][T] = b
+        logger.debug("  B%d -> T  cap=%d", j, b)
 
     return cap, S, T
 
@@ -104,12 +124,20 @@ def obtener_conjunto_backup(distancias, k, b, D):
     n = len(distancias)
     cap, S, T = _construir_red(distancias, k, b, D)
 
-    flujo = _edmonds_karp(cap, S, T)
+    label_fn = lambda v: _node_label(v, n, S, T)
+    logger.debug("--- Edmonds-Karp ---")
+    flujo = _edmonds_karp(cap, S, T, logger=logger, label_fn=label_fn)
+    logger.debug("Flujo maximo = %d  (objetivo n*k = %d)", flujo, n * k)
 
     if flujo != n * k:
+        logger.debug("Flujo < n*k => sin solucion.")
         return None
 
-    return _reconstruir(cap, distancias, D, n)
+    logger.debug("--- Reconstruccion de conjuntos ---")
+    conjuntos = _reconstruir(cap, distancias, D, n)
+    for i, backup in enumerate(conjuntos, start=1):
+        logger.debug("  Antena %d: backup = %s", i, backup)
+    return conjuntos
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -132,11 +160,23 @@ def _uso():
     sys.exit(0)
 
 
+def _setup_logger(verbose: bool) -> None:
+    if verbose:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter("%(message)s"))
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+
+
 def main():
     args = sys.argv[1:]
 
     if not args or args[0] in ("-h", "--help"):
         _uso()
+
+    verbose = "--verbose" in args or "-v" in args
+    args = [a for a in args if a not in ("--verbose", "-v")]
+    _setup_logger(verbose)
 
     ruta = Path(__file__).parent / args[0]
     if not ruta.exists():

@@ -41,9 +41,25 @@ except ModuleNotFoundError:
 # Ejecutar con un archivo de caso .toml
 python antenas.py casos/caso1.toml
 
-# Ver ayuda
-python antenas.py --help
+# Ver seguimiento detallado (aristas construidas, caminos aumentantes)
+python antenas.py --verbose casos/caso1.toml
+python antenas.py -v casos/caso1.toml
 ```
+
+#### Casos de prueba disponibles en `casos/`
+
+| Archivo                      | n  | k | b | D    | Resultado    | Interés                                          |
+|------------------------------|----|---|---|------|--------------|--------------------------------------------------|
+| `caso1.toml`                 | 5  | 2 | 3 | 7    | Solución     | Caso base manual                                 |
+| `caso_b_igual_k.toml`        | 6  | 2 | 2 | 40.0 | Sin solución | `b = k`: mínimo b teórico                        |
+| `caso_b_menor_k.toml`        | 8  | 3 | 2 | 40.0 | Sin solución | `b < k`: imposible estructuralmente              |
+| `caso_d_chico.toml`          | 10 | 3 | 4 | 12.0 | Sin solución | `D` demasiado pequeño, antenas sin vecinos       |
+| `caso_d_amplio.toml`         | 10 | 3 | 4 | 45.0 | Sin solución | Mismo layout que anterior, `D` mayor             |
+| `caso_ajustado.toml`         | 15 | 2 | 3 | 35.0 | Sin solución | Restricciones ajustadas                          |
+| `caso_matching_perfecto.toml`| 20 | 1 | 1 | 30.0 | Sin solución | `k=1, b=1`: matching perfecto bipartito          |
+| `caso_mediano.toml`          | 30 | 4 | 5 | 50.0 | Solución     | Caso mediano con holgura                         |
+| `caso_grande.toml`           | 50 | 3 | 4 | 30.0 | Solución     | Caso grande solucionable                         |
+| `caso_grande_imposible.toml` | 50 | 3 | 4 | 15.0 | Sin solución | Mismo layout que anterior, `D` reducido          |
 
 ### Uso como módulo
 
