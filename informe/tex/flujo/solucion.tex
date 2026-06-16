@@ -89,10 +89,6 @@ ya ha violado la restricción.
 \label{tab:ejemplo_sin_solucion}
 \end{table}
 
-\subsection{Dificultades del problema}
-
-A primera vista, el problema parece simple: para cada antena, elegir $k$ vecinos cercanos. Sin embargo, la restricción $b$ introduce dependencias globales que hacen que las decisiones locales no sean independientes entre sí.
-
 \subsection{Modelado del problema}
 
 Para resolver el problema, lo modelamos como un problema de flujo máximo en una red de flujo. La idea es construir una red de flujo tal que encontrar un flujo máximo en esa red corresponda a encontrar una asignación de backups que cumpla con las restricciones del problema.
@@ -110,7 +106,68 @@ Nuestra propuesta de modelado es la siguiente:
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.9\textwidth]{img/grafico_red.png}
-\caption{Red de flujo para el ejemplo con $n=3$, $k=1$, $b=2$, $D=10$. Los nodos $A_i$ piden backup; los nodos $B_j$ lo proveen. El flujo máximo $= n \cdot k = 3$ indica que existe solución.}
+\caption{Red de flujo para el ejemplo con $n=3$, $k=1$, $b=2$, $D=10$. Los nodos $A_i$ piden backup; los nodos $B_j$ lo proveen. El flujo máximo $= n \cdot k = 3$ indica que existe solución. Generado con \texttt{grafico\_red.py}.}
 \label{fig:red_flujo}
 \end{figure}
 
+\subsection{Diseño de la solución}
+
+\subsubsection{Adaptación al problema de flujo máximo}
+
+La clave del diseño es reconocer que el problema tiene la estructura de una \textbf{asignación bipartita con cuotas}: de un lado están las antenas que \textit{demandan} backups, del otro las antenas que \textit{proveen} backups, y el flujo que pasa por la red representa exactamente qué antena respalda a cuál.
+
+La red se construye con $2n + 2$ nodos organizados en cuatro capas:
+
+\begin{enumerate}
+    \item \textbf{Fuente $S$}: inyecta $k$ unidades de flujo hacia cada antena demandante. La capacidad $k$ de la arista $S \to A_i$ fuerza a que cada antena obtenga \textit{exactamente} $k$ backups (ni más, ni menos, dado que el flujo total debe ser $n \cdot k$).
+    \item \textbf{Nodos $A_i$ (demanda)}: cada antena $i$ que necesita backup. El flujo que sale de $A_i$ representa qué antenas conforman su conjunto de backup.
+    \item \textbf{Nodos $B_j$ (oferta)}: cada antena $j$ en su rol de proveedora de backup. La arista $A_i \to B_j$ existe solo si $d[i][j] < D$, con capacidad 1 (una antena puede aparecer a lo sumo una vez en el backup de cada otra).
+    \item \textbf{Sumidero $T$}: absorbe el flujo de todos los $B_j$. La capacidad $b$ de la arista $B_j \to T$ limita cuántos conjuntos de backup distintos puede integrar la antena $j$.
+\end{enumerate}
+
+\paragraph{Interpretación de la salida.}
+Una vez ejecutado Edmonds-Karp, la respuesta se lee directamente de la red residual:
+
+\begin{itemize}
+    \item Si \textbf{flujo máximo $= n \cdot k$}: existe solución. La arista $A_i \to B_j$ está saturada (capacidad residual $= 0$) si y solo si $j$ pertenece al conjunto de backup de $i$.
+    \item Si \textbf{flujo máximo $< n \cdot k$}: no existe solución. El corte mínimo certifica que algún subconjunto de antenas no puede obtener suficientes backups respetando el límite $b$.
+\end{itemize}
+
+\subsubsection{Pseudocódigo}
+
+\lstinputlisting[
+    caption={Pseudocódigo del algoritmo de backup de antenas},
+    label={lst:pseudocodigo},
+]{code/backup_antenas.pseudo}
+
+\paragraph{Estructuras de datos.}
+La red residual se representa como una \textbf{matriz de adyacencia} \texttt{cap[u][v]} de tamaño $(2n+2) \times (2n+2)$, donde \texttt{cap[u][v]} almacena la capacidad residual de $u$ a $v$. Esta elección simplifica la actualización de aristas inversas (siempre existe \texttt{cap[v][u]}) a costa de $O(n^2)$ de memoria, aceptable para los tamaños de instancia esperados.
+
+\subsection{Supuestos}
+Los supuestos sobre los que este algoritmo se basa son:
+
+\begin{itemize}
+    \item La red es conexa, es decir, existe un camino entre cualquier par de antenas.
+    \item Las distancias entre antenas son simétricas, es decir, $d[i][j] = d[j][i]$ para todas las antenas $i$ y $j$.
+    \item Ninguna antena puede ser su propio backup.
+    \item Las distancias entre antenas no son negativas. 
+    \item La matriz de distancias esta completa, incluyendo la diagonal principal (es decir, $d[i][i] = 0$ para todas las antenas $i$).
+    \item Los parámetros $k$ y $b$ son enteros no negativos, y $D$ es un número real positivo.
+    \item No se considera el posicionamiento en el espacio de las antenas, solo sus distancias mutuas.
+\end{itemize}
+
+\subsection{Evaluaciones y resultadoss}
+
+Se ejecutaron 10 casos de prueba sobre el algoritmo implementado. Los casos fueron generados aleatoriamente con semilla fija (para reproducibilidad) mediante el script \texttt{generar\_caso.py}, ubicando las antenas en coordenadas 2D uniformes dentro de un área de $100 \times 100$, con distancias euclídeas. El caso 1 fue construido manualmente. Las mediciones se realizaron en una misma máquina y corresponden al tiempo de ejecución del algoritmo de flujo máximo (sin contar lectura de archivos).
+
+\lstinputlisting[
+    caption={Resultados de ejecución sobre los 10 casos de prueba (generado por \texttt{ejecutar\_casos.py})},
+    label={lst:mediciones},
+]{resultados/flujo/resultados.txt}
+
+\paragraph{Observaciones.}
+\begin{itemize}
+    \item \textbf{caso\_b\_menor\_k}: con $b=2 < k=3$, la capacidad total de la red ($n \cdot b = 16$) es menor a la demanda total ($n \cdot k = 24$), por lo que es imposible estructuralmente, independientemente de las distancias.
+    \item \textbf{caso\_d\_chico vs.\ caso\_d\_amplio}: mismo layout geométrico (misma semilla), distinto $D$. Ambos resultan sin solución porque con $n=10$ antenas dispersas en $100 \times 100$, $D=45$ no garantiza 3 vecinos por antena en esa distribución particular.
+    \item \textbf{Tiempo de ejecución}: el tiempo crece con $n$, consistente con la complejidad $O(V \cdot E^2)$ de Edmonds-Karp. El caso \texttt{caso\_grande\_imposible} ($n=50$) tarda casi lo mismo que \texttt{caso\_grande} porque Edmonds-Karp igualmente explora la red antes de concluir que no hay solución.
+\end{itemize}
