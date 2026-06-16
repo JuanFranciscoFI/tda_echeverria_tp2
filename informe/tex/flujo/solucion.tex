@@ -143,6 +143,66 @@ Una vez ejecutado Edmonds-Karp, la respuesta se lee directamente de la red resid
 \paragraph{Estructuras de datos.}
 La red residual se representa como una \textbf{matriz de adyacencia} \texttt{cap[u][v]} de tamaño $(2n+2) \times (2n+2)$, donde \texttt{cap[u][v]} almacena la capacidad residual de $u$ a $v$. Esta elección simplifica la actualización de aristas inversas (siempre existe \texttt{cap[v][u]}) a costa de $O(n^2)$ de memoria, aceptable para los tamaños de instancia esperados.
 
+\subsection{Complejidad}
+
+El algoritmo tiene tres fases bien diferenciadas en el pseudocódigo. Designamos
+$V = 2n+2$ la cantidad de nodos y $E$ la cantidad de aristas de la red.
+
+\paragraph{Fase 1 — Construcción de la red }
+
+La inicialización de la matriz \texttt{cap} requiere $O(n^2)$ tiempo y espacio
+(la matriz tiene $(2n+2)^2$ entradas). El lazo doble de las líneas 11–14
+recorre todos los pares $(i,j)$ con $i \neq j$ para verificar $d[i][j] < D$:
+
+\begin{equation*}
+\underbrace{O(n)}_{\text{S} \to A_i}
+\;+\;
+\underbrace{O(n^2)}_{\text{A}_i \to B_j}
+\;+\;
+\underbrace{O(n)}_{\text{B}_j \to T}
+\;=\; O(n^2)
+\end{equation*}
+
+La cantidad de aristas que se agregan a la red es a lo sumo
+$E = n + n(n-1) + n = O(n^2)$.
+
+\paragraph{Fase 2 — Edmonds-Karp }
+
+Cada iteración del ciclo principal ejecuta un BFS sobre la red residual.
+La red tiene $V = 2n+2 = O(n)$ nodos y $E = O(n^2)$ aristas, por lo que
+cada BFS cuesta $O(V + E) = O(n^2)$.
+
+Para acotar la cantidad de iteraciones usamos que todas las capacidades son
+enteras, por lo que cada camino aumentante incrementa el flujo en al menos 1.
+Como el flujo máximo es $n \cdot k$ (la demanda total de la red), el número de
+caminos aumentantes es a lo sumo $n \cdot k$. En consecuencia, la fase completa
+toma:
+
+\begin{equation*}
+O(n \cdot k) \times O(n^2) = O(k \cdot n^3)
+\end{equation*}
+
+El límite clásico de Edmonds-Karp es $O(V \cdot E^2) = O(n^5)$, pero ese cota
+no aprovecha que el flujo máximo de \emph{esta} red está acotado por $n \cdot k$
+(usualmente mucho menor que el peor caso genérico).
+
+\paragraph{Fase 3 — Reconstrucción }
+
+El lazo doble recorre los mismos $O(n^2)$ pares $(i,j)$ y lee directamente
+de la matriz residual si la arista está saturada. Costo: $O(n^2)$.
+
+\paragraph{Costo total.}
+
+La fase dominante es Edmonds-Karp:
+
+\begin{equation*}
+\boxed{O(k \cdot n^3)}
+\end{equation*}
+
+Para los parámetros típicos del problema ($k \ll n$) esto es efectivamente
+$O(n^3)$, confirmando que el algoritmo es polinomial en el tamaño de la
+instancia.
+
 \subsection{Supuestos}
 Los supuestos sobre los que este algoritmo se basa son:
 
@@ -154,7 +214,9 @@ Los supuestos sobre los que este algoritmo se basa son:
     \item Las distancias entre antenas no son negativas. 
     \item La matriz de distancias esta completa, incluyendo la diagonal principal (es decir, $d[i][i] = 0$ para todas las antenas $i$).
     \item Los parámetros $k$ y $b$ son enteros no negativos, y $D$ es un número real positivo.
-    \item No se considera el posicionamiento en el espacio de las antenas, solo sus distancias mutuas.
+    \item No se considera el posicionamiento en el espacio de las antenas, solo sus distancias mutuas (ignoramos la representacion fisica de las antenas si estan en 2 o 3 dimensiones).
+    \item El valor $k$ es mucho menor a $n$, lo que hace que la fase de Edmonds-Karp sea efectivamente $O(n^3)$ en la práctica.
+    \item El valor de $b$ es menor o igual a $n$, ya que no tiene sentido que una antena pueda ser backup de más antenas que las que existen en la red.
 \end{itemize}
 
 \subsection{Evaluaciones y resultados}
