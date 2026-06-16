@@ -209,6 +209,94 @@ def plot_residual():
     print(f"Guardado: {salida}")
 
 
+# ════════════════════════════════════════════════════════════════════════════
+# Plot 3 — Aristas usadas en la reconstrucción
+# ════════════════════════════════════════════════════════════════════════════
+def plot_solucion():
+    """
+    Muestra la red original coloreando las aristas que forman la solución:
+      - A_i → B_j saturadas (flujo = 1): gold / naranja — asignaciones elegidas
+      - A_i → B_j no usadas:             lightgray      — descartadas
+      - S → A_i y B_j → T:               igual que la red original
+    """
+    G = nx.DiGraph()
+    edge_labels = {}
+
+    for u in range(total):
+        for v in range(total):
+            c = cap_orig[u][v]
+            if c == 0:
+                continue
+
+            lu, lv = label(u), label(v)
+            res = cap_residual[u][v]
+            flujo = c - res  # flujo que circuló por esta arista
+
+            if u == S_idx:
+                # S → A_i: resaltar con el flujo que salió
+                G.add_edge(lu, lv, color="steelblue", width=2.0)
+                edge_labels[(lu, lv)] = f"{flujo}/{c}"
+            elif v == T_idx:
+                # B_j → T: mostrar flujo recibido
+                G.add_edge(lu, lv, color="tomato", width=2.0)
+                edge_labels[(lu, lv)] = f"{flujo}/{c}"
+            else:
+                # A_i → B_j: dorado si fue elegida, gris si no
+                if flujo == 1:
+                    G.add_edge(lu, lv, color="goldenrod", width=2.5)
+                    edge_labels[(lu, lv)] = "1"
+                else:
+                    G.add_edge(lu, lv, color="lightgray", width=1.0)
+
+    _, ax = plt.subplots(figsize=(11, 6))
+
+    nx.draw_networkx_nodes(G, pos, ax=ax, node_size=1100,
+                           node_color=[
+                               "steelblue" if n_ == "S" else
+                               "tomato"    if n_ == "T" else
+                               "lightsteelblue" if n_.startswith("A") else
+                               "lightsalmon"
+                               for n_ in G.nodes()
+                           ])
+    nx.draw_networkx_labels(G, pos, ax=ax, font_size=10, font_weight="bold")
+
+    widths      = [G[u][v]["width"] for u, v in G.edges()]
+    edge_colors = [G[u][v]["color"] for u, v in G.edges()]
+    nx.draw_networkx_edges(G, pos, ax=ax,
+                           edge_color=edge_colors, width=widths,
+                           arrows=True, arrowsize=18,
+                           connectionstyle="arc3,rad=0.08")
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels,
+                                 ax=ax, font_size=7, label_pos=0.35)
+
+    leyenda = [
+        mpatches.Patch(color="steelblue",  label=f"S → Aᵢ"),
+        mpatches.Patch(color="goldenrod",  label="Aᵢ → Bⱼ  elegida (flujo = 1)"),
+        mpatches.Patch(color="lightgray",  label="Aᵢ → Bⱼ  descartada"),
+        mpatches.Patch(color="tomato",     label=f"Bⱼ → T"),
+    ]
+    ax.legend(handles=leyenda, loc="lower center",
+              bbox_to_anchor=(0.5, -0.13), ncol=4, fontsize=9)
+
+    for x, etq in [(0, "Fuente"), (1, "Antenas\n(piden backup)"),
+                   (2, "Antenas\n(dan backup)"), (3, "Sumidero")]:
+        ax.text(x, n + 0.1, etq, ha="center", va="bottom",
+                fontsize=9, color="dimgray", style="italic")
+
+    ax.set_title(
+        f"Solución reconstruida — n={n}, k={k}, b={b}, D={D}\n"
+        f"Etiquetas: flujo/capacidad",
+        fontsize=12,
+    )
+    ax.axis("off")
+    plt.tight_layout()
+    salida = Path(__file__).parent / "grafico_solucion.png"
+    plt.savefig(salida, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Guardado: {salida}")
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 plot_original()
 plot_residual()
+plot_solucion()
