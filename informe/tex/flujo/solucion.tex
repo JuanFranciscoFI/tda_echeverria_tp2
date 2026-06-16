@@ -147,6 +147,7 @@ La red residual se representa como una \textbf{matriz de adyacencia} \texttt{cap
 Los supuestos sobre los que este algoritmo se basa son:
 
 \begin{itemize}
+    \item Cuando el enunciado dice: "Plantear un algoritmo de complejidad polinomial que encuentre el conjunto de backup de tamaño k de cada una de las n antenas", se interpresa que el conjunto de backup de tamaño $k$ se refiere a que cada antena debe tener por lo menos $k$ antenas de backup asignadas, no que el grupo de backup de toda la red debe tener tamaño $k$.
     \item La red es conexa, es decir, existe un camino entre cualquier par de antenas.
     \item Las distancias entre antenas son simétricas, es decir, $d[i][j] = d[j][i]$ para todas las antenas $i$ y $j$.
     \item Ninguna antena puede ser su propio backup.
@@ -156,7 +157,7 @@ Los supuestos sobre los que este algoritmo se basa son:
     \item No se considera el posicionamiento en el espacio de las antenas, solo sus distancias mutuas.
 \end{itemize}
 
-\subsection{Evaluaciones y resultadoss}
+\subsection{Evaluaciones y resultados}
 
 Se ejecutaron 10 casos de prueba sobre el algoritmo implementado. Los casos fueron generados aleatoriamente con semilla fija (para reproducibilidad) mediante el script \texttt{generar\_caso.py}, ubicando las antenas en coordenadas 2D uniformes dentro de un área de $100 \times 100$, con distancias euclídeas. El caso 1 fue construido manualmente. Las mediciones se realizaron en una misma máquina y corresponden al tiempo de ejecución del algoritmo de flujo máximo (sin contar lectura de archivos).
 
@@ -171,3 +172,118 @@ Se ejecutaron 10 casos de prueba sobre el algoritmo implementado. Los casos fuer
     \item \textbf{caso\_d\_chico vs.\ caso\_d\_amplio}: mismo layout geométrico (misma semilla), distinto $D$. Ambos resultan sin solución porque con $n=10$ antenas dispersas en $100 \times 100$, $D=45$ no garantiza 3 vecinos por antena en esa distribución particular.
     \item \textbf{Tiempo de ejecución}: el tiempo crece con $n$, consistente con la complejidad $O(V \cdot E^2)$ de Edmonds-Karp. El caso \texttt{caso\_grande\_imposible} ($n=50$) tarda casi lo mismo que \texttt{caso\_grande} porque Edmonds-Karp igualmente explora la red antes de concluir que no hay solución.
 \end{itemize}
+
+\subsection{Seguimiento}
+
+\paragraph{Instancia.}
+Seguimos la ejecución sobre \texttt{casos/caso1.toml}: $n=5$ antenas con parámetros
+$k=2$, $b=3$, $D=7$. El flujo objetivo es $n \cdot k = 5 \cdot 2 = 10$.
+La traza completa se puede reproducir con:
+\begin{verbatim}
+python antenas.py --verbose casos/caso1.toml
+\end{verbatim}
+
+\subsubsection{Construcción de la red de flujo}
+
+Con $D=7$, se agrega la arista $A_i \to B_j$ (cap $= 1$) para cada par de antenas
+distintas con $d[i][j] < 7$.
+Las aristas $S \to A_i$ tienen capacidad $k=2$ y las $B_j \to T$ tienen capacidad $b=3$.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Antena $i$} & \textbf{Vecinos $j$ con $d[i][j] < 7$ $\Rightarrow$ aristas $A_i \to B_j$} \\
+\hline
+1 & $j=2\ (d{=}5),\; j=3\ (d{=}6)$ \\
+2 & $j=1\ (d{=}5),\; j=3\ (d{=}1),\; j=4\ (d{=}2),\; j=5\ (d{=}3)$ \\
+3 & $j=1\ (d{=}3),\; j=2\ (d{=}1),\; j=4\ (d{=}1),\; j=5\ (d{=}2)$ \\
+4 & $j=2\ (d{=}2),\; j=3\ (d{=}1),\; j=5\ (d{=}1)$ \\
+5 & $j=2\ (d{=}6),\; j=3\ (d{=}2),\; j=4\ (d{=}1)$ \\
+\hline
+\end{tabular}
+\caption{Vecinos de cada antena y aristas intermedias generadas (todas con cap $= 1$).}
+\label{tab:vecinos_caso1}
+\end{table}
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{img/grafico_red_caso1.png}
+\caption{Red de flujo construida para el caso 1. Generado con \texttt{grafico\_red.py}.}
+\label{fig:red_flujo_caso1}
+\end{figure}
+
+La red resultante tiene $2n+2 = 12$ nodos y $n + 20 + n = 30$ aristas
+($5$ desde $S$, $20$ intermedias, $5$ hacia $T$).
+
+\subsubsection{Iteraciones de Edmonds-Karp}
+
+Cada iteración ejecuta un BFS sobre la red residual para hallar el camino más corto
+desde $S$ hasta $T$, y aumenta el flujo por la capacidad del cuello de botella.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|l|c|c|}
+\hline
+\textbf{Iter.} & \textbf{Camino aumentante} & \textbf{Cuello} & \textbf{Flujo acum.} \\
+\hline
+1  & $S \to A_1 \to B_2 \to T$ & 1 & 1 \\
+2  & $S \to A_1 \to B_3 \to T$ & 1 & 2 \\
+3  & $S \to A_2 \to B_1 \to T$ & 1 & 3 \\
+4  & $S \to A_2 \to B_3 \to T$ & 1 & 4 \\
+5  & $S \to A_3 \to B_1 \to T$ & 1 & 5 \\
+6  & $S \to A_3 \to B_2 \to T$ & 1 & 6 \\
+7  & $S \to A_4 \to B_2 \to T$ & 1 & 7 \\
+8  & $S \to A_4 \to B_3 \to T$ & 1 & 8 \\
+9  & $S \to A_5 \to B_4 \to T$ & 1 & 9 \\
+10 & $S \to A_5 \to B_2 \to A_3 \to B_4 \to T$\enskip${}^{*}$ & 1 & 10 \\
+\hline
+\end{tabular}
+\caption{Caminos aumentantes encontrados por Edmonds-Karp.
+${}^{*}$La iteración 10 usa la arista \emph{residual} $B_2 \to A_3$.}
+\label{tab:caminos_caso1}
+\end{table}
+
+\paragraph{Nota sobre la iteración 10.}
+Tras la iteración 9, $A_5$ aún necesita 1 unidad de flujo pero sus caminos directos
+están bloqueados: $B_2 \to T$ y $B_3 \to T$ están saturadas (cada una absorbió 3
+unidades en las iteraciones 1,6,7 y 2,4,8 respectivamente), y $A_5 \to B_4$ fue
+usada en la iteración 9.
+El BFS encuentra entonces un camino de largo 5 que atraviesa la arista
+\emph{residual} $B_2 \to A_3$ (el reverso de la arista $A_3 \to B_2$ saturada en
+la iteración 6). Esto \textit{cancela} la asignación $3 \in \text{backup}(3)$ y
+la reemplaza por $4 \in \text{backup}(3)$, liberando a $B_2$ para que $A_5$
+lo utilice. Este es el mecanismo central de Edmonds-Karp: la red residual permite
+``deshacer'' decisiones anteriores en busca de un mejor flujo global.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{img/grafico_residual_caso1.png}
+\caption{Red de flujo residual para el caso 1 señalando las aristas saturadas, las aristas con capacidad residual y los caminos. Generado con \texttt{grafico\_red.py}.}
+\label{fig:red_residual_flujo_caso1}
+\end{figure}
+
+\subsubsection{Verificación y reconstrucción}
+
+El flujo total alcanzado es $10 = n \cdot k$, por lo que \textbf{existe solución}.
+Los conjuntos de backup se leen de las aristas saturadas (capacidad residual $= 0$)
+en la red final:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|l|c|c|}
+\hline
+\textbf{Antena $i$} & \textbf{Aristas saturadas $A_i \to B_j$} & \textbf{Backup} & \textbf{Apariciones como backup} \\
+\hline
+1 & $A_1 \to B_2$,\; $A_1 \to B_3$         & $\{2,3\}$ & 2 (antenas 4, 5) \\
+2 & $A_2 \to B_1$,\; $A_2 \to B_3$         & $\{1,3\}$ & 3 (antenas 1, 4, 5) \\
+3 & $A_3 \to B_1$,\; $A_3 \to B_4$         & $\{1,4\}$ & 3 (antenas 1, 2, 4) \\
+4 & $A_4 \to B_2$,\; $A_4 \to B_3$         & $\{2,3\}$ & 2 (antenas 3, 5) \\
+5 & $A_5 \to B_2$,\; $A_5 \to B_4$         & $\{2,4\}$ & 0 \\
+\hline
+\end{tabular}
+\caption{Reconstrucción final. Cada antena obtiene exactamente $k=2$ backups y
+ninguna aparece en más de $b=3$ conjuntos.}
+\label{tab:solucion_caso1}
+\end{table}
