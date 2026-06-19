@@ -1,6 +1,6 @@
 from grafo import Grafo
 
-def metricas_coloreo(grafo: Grafo, coloreo):
+def obtener_metricas_coloreo(grafo: Grafo, coloreo) -> tuple[int, int, int, bool]:
 
     satisfechas = 0
     no_satisfechas = 0
@@ -20,13 +20,9 @@ def metricas_coloreo(grafo: Grafo, coloreo):
             else:
                 no_satisfechas += 1
 
-    return satisfechas, no_satisfechas
-
-
-def cumple_dos_tercios(grafo: Grafo, coloreo):
-
-    satisfechas, no_satisfechas = metricas_coloreo(grafo, coloreo)
-
     total_aristas = satisfechas + no_satisfechas
+    cumple_coloreo = satisfechas >= (2 * total_aristas) / 3
 
-    return "Sí" if satisfechas >= (2 * total_aristas) / 3 else "No"
+
+    return total_aristas, satisfechas, no_satisfechas, cumple_coloreo
+
