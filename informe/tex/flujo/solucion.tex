@@ -235,6 +235,20 @@ Se ejecutaron 10 casos de prueba sobre el algoritmo implementado. Los casos fuer
     \item \textbf{Tiempo de ejecución}: el tiempo crece con $n$, consistente con la complejidad $O(V \cdot E^2)$ de Edmonds-Karp. El caso \texttt{caso\_grande\_imposible} ($n=50$) tarda casi lo mismo que \texttt{caso\_grande} porque Edmonds-Karp igualmente explora la red antes de concluir que no hay solución.
 \end{itemize}
 
+\subsection{Tiempos de ejecución}
+
+Para evaluar si los tiempos de ejecución se corresponden con la complejidad teórica $O(k \cdot n^3)$, se diseñó un experimento con parámetros fijos $k=2$, $b=3$, $D=40$ y tamaños de entrada crecientes $n \in \{5, 10, 20, 30, 50, 75, 100, 150, 200\}$. Para cada valor de $n$ se generaron 7 instancias aleatorias con semillas distintas, se descartaron el mínimo y el máximo, y se promedió el tiempo de las 5 mediciones restantes. Con $k$ fijo, la complejidad predicha es $O(n^3)$, lo que permite ajustar una curva $f(n) = C \cdot n^3$ por mínimos cuadrados sobre los tiempos medidos.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{img/grafico_tiempos.png}
+\caption{Tiempos de ejecución medidos (azul) frente a la curva teórica de ajuste $C \cdot n^3$ (rojo discontinuo), para $k=2$, $b=3$, $D=40$. Generado con \texttt{analisis/tiempos.ipynb}.}
+\label{fig:tiempos}
+\end{figure}
+
+\paragraph{Análisis.}
+La curva medida se ajusta con buena precisión a $C \cdot n^3$, lo que confirma la complejidad $O(k \cdot n^3)$ determinada teóricamente. Para $n=200$ el tiempo promedio se mantiene en el orden de cientos de milisegundos, coherente con la predicción cúbica. La pequeña desviación visible en valores bajos de $n$ se debe a que para instancias pequeñas el costo constante de inicialización de la red domina sobre el término cúbico. En instancias donde no existe solución, Edmonds-Karp recorre igualmente toda la red residual antes de concluir, por lo que el comportamiento asintótico es el mismo independientemente del resultado.
+
 \subsection{Seguimiento}
 
 \paragraph{Instancia.}
