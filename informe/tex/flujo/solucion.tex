@@ -237,17 +237,33 @@ Se ejecutaron 10 casos de prueba sobre el algoritmo implementado. Los casos fuer
 
 \subsection{Tiempos de ejecución}
 
-Para evaluar si los tiempos de ejecución se corresponden con la complejidad teórica $O(k \cdot n^3)$, se diseñó un experimento con parámetros fijos $k=2$, $b=3$, $D=40$ y tamaños de entrada crecientes $n \in \{5, 10, 20, 30, 50, 75, 100, 150, 200\}$. Para cada valor de $n$ se generaron 7 instancias aleatorias con semillas distintas, se descartaron el mínimo y el máximo, y se promedió el tiempo de las 5 mediciones restantes. Con $k$ fijo, la complejidad predicha es $O(n^3)$, lo que permite ajustar una curva $f(n) = C \cdot n^3$ por mínimos cuadrados sobre los tiempos medidos.
+Para evaluar si los tiempos de ejecución se corresponden con la complejidad teórica $O(k \cdot n^3)$, se diseñó un experimento con parámetros fijos $k=2$, $b=3$, $D=40$ y tamaños de entrada crecientes $n \in \{5, 10, 20, 30, 50, 75, 100, 150, 200\}$. Para cada valor de $n$ se generaron 7 instancias aleatorias con semillas distintas, se descartaron el mínimo y el máximo, y se promedió el tiempo de las 5 mediciones restantes. Con $k$ fijo, la complejidad predicha es $O(n^3)$; para contrastar, se ajustan simultáneamente una curva cúbica $f(n) = C_3 \cdot n^3$ y una cuadrática $f(n) = C_2 \cdot n^2$, ambas por mínimos cuadrados.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{img/grafico_tiempos.png}
-\caption{Tiempos de ejecución medidos (azul) frente a la curva teórica de ajuste $C \cdot n^3$ (rojo discontinuo), para $k=2$, $b=3$, $D=40$. Generado con \texttt{analisis/tiempos.ipynb}.}
+\caption{Tiempos de ejecución medidos (azul) frente al ajuste cúbico $C_3 \cdot n^3$ (rojo discontinuo) y el ajuste cuadrático $C_2 \cdot n^2$ (verde punteado), para $k=2$, $b=3$, $D=40$. Generado con \texttt{analisis/tiempos.ipynb}.}
 \label{fig:tiempos}
 \end{figure}
 
-\paragraph{Análisis.}
-La curva medida se ajusta con buena precisión a $C \cdot n^3$, lo que confirma la complejidad $O(k \cdot n^3)$ determinada teóricamente. Para $n=200$ el tiempo promedio se mantiene en el orden de cientos de milisegundos, coherente con la predicción cúbica. La pequeña desviación visible en valores bajos de $n$ se debe a que para instancias pequeñas el costo constante de inicialización de la red domina sobre el término cúbico. En instancias donde no existe solución, Edmonds-Karp recorre igualmente toda la red residual antes de concluir, por lo que el comportamiento asintótico es el mismo independientemente del resultado.
+\paragraph{Análisis del ajuste.}
+La curva medida se ajusta con mayor precisión a $C_3 \cdot n^3$ que a $C_2 \cdot n^2$: para valores grandes de $n$ la curva cuadrática subestima sistemáticamente los tiempos, mientras que la cúbica los sigue de cerca. Esto confirma la complejidad $O(k \cdot n^3)$ determinada teóricamente. La leve desviación para $n$ pequeños se debe a que el costo constante de inicialización de la red domina sobre el término cúbico. En instancias sin solución, Edmonds-Karp recorre igualmente toda la red residual antes de concluir, por lo que el comportamiento asintótico es el mismo.
+
+\paragraph{Efecto de los parámetros $k$, $b$ y $D$.}
+La Figura~\ref{fig:tiempos_variables} muestra el tiempo en función de $n$ al variar cada uno de los tres parámetros por separado.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{img/grafico_tiempos_variables.png}
+\caption{Efecto de $k$, $b$ y $D$ sobre los tiempos de ejecución. Cada panel varía un parámetro manteniendo los demás fijos. Generado con \texttt{analisis/tiempos.ipynb}.}
+\label{fig:tiempos_variables}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Efecto de $k$}: al aumentar $k$, las curvas se desplazan hacia arriba de forma aproximadamente proporcional, consistente con la dependencia lineal $O(k \cdot n^3)$. Un mayor $k$ implica más caminos aumentantes necesarios (el flujo objetivo es $n \cdot k$), por lo que Edmonds-Karp ejecuta más iteraciones.
+    \item \textbf{Efecto de $b$}: valores mayores de $b$ reducen el tiempo, ya que al relajar la restricción de capacidad en los nodos $B_j \to T$ el algoritmo encuentra caminos aumentantes con menos rerouting. Para $b$ muy grande, la restricción efectiva pasa a ser $k$ (cada $A_i$ solo puede enviar $k$ unidades), y el tiempo converge.
+    \item \textbf{Efecto de $D$}: un umbral de distancia mayor aumenta la densidad de aristas intermedias $A_i \to B_j$, lo que incrementa el tamaño de la red y el costo de cada BFS. Esto se refleja en tiempos ligeramente mayores a medida que $D$ crece, especialmente para $n$ grande.
+\end{itemize}
 
 \subsection{Seguimiento}
 
