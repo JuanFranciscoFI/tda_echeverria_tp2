@@ -265,6 +265,15 @@ La Figura~\ref{fig:tiempos_variables} muestra el tiempo en función de $n$ al va
     \item \textbf{Efecto de $D$}: un umbral de distancia mayor aumenta la densidad de aristas intermedias $A_i \to B_j$, lo que incrementa el tamaño de la red y el costo de cada BFS. Esto se refleja en tiempos ligeramente mayores a medida que $D$ crece, especialmente para $n$ grande.
 \end{itemize}
 
+La Figura~\ref{fig:tiempos_combinado} superpone todas las curvas anteriores en un único gráfico, distinguiendo cada parámetro por estilo de línea y paleta de color.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{img/grafico_tiempos_combinado.png}
+\caption{Efecto combinado de $k$ (líneas sólidas, azules), $b$ (líneas discontinuas, verdes) y $D$ (líneas punteadas, naranjas) sobre el tiempo de ejecución en función de $n$. Es notorio el impacto de $k$ en los tiempos de ejecucion. Generado con \texttt{analisis/tiempos.ipynb}.}
+\label{fig:tiempos_combinado}
+\end{figure}
+
 \subsection{Seguimiento}
 
 \paragraph{Instancia.}
