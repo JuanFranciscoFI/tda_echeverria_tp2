@@ -1,3 +1,4 @@
+import os
 import time
 from leer_archivos import leer_archivo
 # Algoritmo donde la se encuentra un subconjunto factible S menor o igual a la mitad de otro
@@ -26,23 +27,13 @@ def guardar_resultado(A, B, nombre_archivo):
         f.write(str(tiempo) + "\n\n")
 
 def main():
-    A, B = leer_archivo("ej3/datos_de_entrada/entrada1.txt")
-    guardar_resultado(A,B,"ej3/resultados/resultado1.txt")
-
-    A, B = leer_archivo("ej3/datos_de_entrada/entrada2.txt")
-    guardar_resultado(A,B,"ej3/resultados/resultado2.txt")
-
-    A, B = leer_archivo("ej3/datos_de_entrada/entrada3.txt")
-    guardar_resultado(A,B,"ej3/resultados/resultado3.txt")
-
-    A, B = leer_archivo("ej3/datos_de_entrada/entrada4.txt")
-    guardar_resultado(A,B,"ej3/resultados/resultado4.txt")
-
-    A, B = leer_archivo("ej3/datos_de_entrada/entrada5.txt")
-    guardar_resultado(A,B,"ej3/resultados/resultado5.txt")
-
-    A, B = leer_archivo("ej3/datos_de_entrada/entrada6.txt")
-    guardar_resultado(A,B,"ej3/resultados/resultado6.txt")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    for i in range(1, 7):
+        entrada = os.path.join(script_dir, f"datos_de_entrada/entrada{i}.txt")
+        resultado = os.path.join(script_dir, f"resultados/resultado{i}.txt")
+        A, B = leer_archivo(entrada)
+        guardar_resultado(A, B, resultado)
 
 
 main()
