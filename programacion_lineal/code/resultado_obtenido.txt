@@ -1,0 +1,15 @@
+Estado: Optimal
+Beneficio total: 255000.0
+
+Variables seleccionadas:
+A = 1.0
+B_120 = 0.0
+B_80 = 1.0
+C = 1.0
+D = 0.0
+E = 1.0
+F = 0.0
+G = 0.0
+
+Paradas utilizadas: 187.0
+Paradas disponibles sin utilizar: 13.0
