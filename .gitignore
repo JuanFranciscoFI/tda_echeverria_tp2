@@ -1,0 +1,75 @@
+# ==========================================
+# Archivos específicos de VS Code e IDEs
+# ==========================================
+.vscode/
+.history/
+*.code-workspace
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# Archivos de caché y compilación de Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+.modules
+
+# ==========================================
+# Entornos Virtuales (MUY IMPORTANTE)
+# ==========================================
+.venv/
+venv/
+ENV/
+env/
+ENV/
+.env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ==========================================
+# Archivos de configuración y Variables de Entorno (Secretos)
+# ==========================================
+.env
+.env.*
+.secrets
+secrets.json
+
+# ==========================================
+# Herramientas de Testing, Cobertura y Linting
+# ==========================================
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+htmlcov/
+
+# ==========================================
+# Bases de datos locales y Jupyter Notebooks
+# ==========================================
+*.db
+*.sqlite3
+.ipynb_checkpoints/
