@@ -41,4 +41,8 @@ def main():
     A, B = leer_archivo("ej3/datos_de_entrada/entrada5.txt")
     guardar_resultado(A,B,"ej3/resultados/resultado5.txt")
 
+    A, B = leer_archivo("ej3/datos_de_entrada/entrada6.txt")
+    guardar_resultado(A,B,"ej3/resultados/resultado6.txt")
+
+
 main()
