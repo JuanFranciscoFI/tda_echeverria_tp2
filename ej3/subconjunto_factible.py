@@ -13,6 +13,8 @@ def subconjunto_factible(A,B):
     return S
 
 def guardar_resultado(A, B, nombre_archivo):
+    print(f"{len(A)}, {B}")
+    print()
     t1 = time.perf_counter()
     resultado = subconjunto_factible(A, B)
     t2 = time.perf_counter()
@@ -35,5 +37,8 @@ def main():
 
     A, B = leer_archivo("ej3/datos_de_entrada/entrada4.txt")
     guardar_resultado(A,B,"ej3/resultados/resultado4.txt")
+
+    A, B = leer_archivo("ej3/datos_de_entrada/entrada5.txt")
+    guardar_resultado(A,B,"ej3/resultados/resultado5.txt")
 
 main()
