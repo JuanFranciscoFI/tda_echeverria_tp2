@@ -1,0 +1,69 @@
+Instrucciones de ejecucion
+==========================
+
+Todos los comandos se ejecutan desde la raiz del proyecto.
+
+Si el comando python3 no esta disponible, usar python en su lugar.
+
+Preparacion del entorno
+-----------------------
+
+Crear y activar un entorno virtual:
+
+   python3 -m venv .venv
+   source .venv/bin/activate
+
+En Windows, activar con:
+
+   .venv\Scripts\activate
+
+Instalar dependencias externas:
+
+   pip install -r requirements.txt
+
+
+Aleatorios
+----------
+
+   python3 aleatorios/coloreo_aleatorio.py
+
+Luego seguir las instrucciones que se imprimen en la terminal.
+
+
+Redes de flujo
+--------------
+
+Ejecutar un caso:
+
+   python3 redes_de_flujo/antenas.py casos/caso1.toml
+
+Ejecutar un caso con salida detallada:
+
+   python3 redes_de_flujo/antenas.py --verbose casos/caso1.toml
+
+Ejecutar todos los casos de prueba:
+
+   python3 redes_de_flujo/ejecutar_casos.py
+
+Generar un caso nuevo:
+
+   python3 redes_de_flujo/generar_caso.py <n> <k> <b> <D> [archivo_salida] [seed]
+
+Generar graficos de la red:
+
+   python3 redes_de_flujo/grafico_red.py
+
+
+Programacion lineal
+-------------------
+
+   python3 programacion_lineal/code/programacion_lineal.py
+
+
+Aproximaciones
+--------------
+
+   python3 aproximaciones/subconjunto_factible.py
+
+El programa lee las entradas de aproximaciones/datos_de_entrada/ y guarda los
+resultados en aproximaciones/resultados/.

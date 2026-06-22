@@ -14,7 +14,9 @@ def subconjunto_factible(A,B):
     return S
 
 def guardar_resultado(A, B, nombre_archivo):
-    print(f"{len(A)}, {B}")
+    print(f"cant_numeros = {len(A)}")
+    print(f"A = {A}")
+    print(f"B = {B} (tope de la suma)")
     print()
     t1 = time.perf_counter()
     resultado = subconjunto_factible(A, B)
@@ -32,8 +34,11 @@ def main():
     for i in range(1, 7):
         entrada = os.path.join(script_dir, f"datos_de_entrada/entrada{i}.txt")
         resultado = os.path.join(script_dir, f"resultados/resultado{i}.txt")
+        print(f"Se esta leyendo {entrada}")
         A, B = leer_archivo(entrada)
         guardar_resultado(A, B, resultado)
+
+    print("Se generaron los archivos de resultados.")
 
 
 main()
